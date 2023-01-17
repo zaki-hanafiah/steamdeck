@@ -1,24 +1,12 @@
 #!/bin/sh
-emuName="Ryujinx" #parameterize me
-emufolder="$HOME/Applications/publish" # has to be applications for ES-DE to find it
+cd /tmp
+curl -s https://api.github.com/repos/Ryujinx/release-channel-master/releases/latest \
+| grep -e "https.*ava-.*linux" \
+| cut -d : -f 2,3 \
+| tr -d \" \
+| wget -qi -
 
-#find full path to emu executable
-exe=$(find $emufolder -iname "${emuName}" | sort -n | cut -d' ' -f 2- | tail -n 1 2>/dev/null)
-
-#if appimage doesn't exist fall back to flatpak.
-if [[ $exe == '' ]]; then
-    #flatpak
-    flatpakApp=$(flatpak list --app --columns=application | grep $emuName)
-    exe="/usr/bin/flatpak run "$flatpakApp
-else
-#make sure that file is executable
-    chmod +x $exe
-fi
-#run the executable with the params.
-#Fix first '
-param="${@}"
-#substituteWith='"'
-#param=${param/\'/"$substituteWith"}
-#Fix last ' on command
-#param=$(echo "$param" | sed 's/.$/"/')
-eval ${exe} "${param}"
+FILE=`find /tmp -name '*ava*linux*' 2>/dev/null`
+tar xf $FILE -C $HOME/deck/Applications/
+mv $HOME/deck/Applications/publish/Ryujinx.Ava $HOME/deck/Applications/publish/Ryujinx
+rm $FILE
